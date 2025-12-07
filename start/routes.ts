@@ -10,6 +10,7 @@
 const AuthController = () => import('#controllers/auth_controller/controller')
 import router from '@adonisjs/core/services/router'
 import { middleware } from './kernel.js'
+const ItemsController = () => import('#controllers/items_controller/controller')
 
 router
   .group(() => {
@@ -19,3 +20,9 @@ router
     router.post('/check-username', [AuthController, 'checkUsername'])
   })
   .prefix('/auth')
+
+router
+  .group(() => {
+    router.post('/analyse', [ItemsController, 'analyseImage'])
+  })
+  .prefix('/items')
