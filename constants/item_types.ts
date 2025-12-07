@@ -1,0 +1,15 @@
+export const ITEM_TYPES = [
+  'T-shirts & Tops',
+  'Sweatshirts & Hoodies',
+  'Pulls & Mailles',
+  'Chemises',
+  'Pantalons',
+  'Jupes',
+  'Shorts',
+  'Robes',
+  'Vestes & Manteaux',
+  'Chaussures',
+  'Accessoires',
+  'Vêtements de sport',
+  'Autres',
+] as const

@@ -2,8 +2,11 @@ import { DbAccessTokensProvider } from '@adonisjs/auth/access_tokens'
 import { withAuthFinder } from '@adonisjs/auth/mixins/lucid'
 import { compose } from '@adonisjs/core/helpers'
 import hash from '@adonisjs/core/services/hash'
-import { BaseModel, column } from '@adonisjs/lucid/orm'
+import { BaseModel, column, hasMany } from '@adonisjs/lucid/orm'
+import type { HasMany } from '@adonisjs/lucid/types/relations'
 import { DateTime } from 'luxon'
+import Item from './item.js'
+import Look from './look.js'
 
 const AuthFinder = withAuthFinder(() => hash.use('scrypt'), {
   uids: ['email'],
@@ -39,4 +42,16 @@ export default class User extends compose(BaseModel, AuthFinder) {
   declare updatedAt: DateTime | null
 
   static accessTokens = DbAccessTokensProvider.forModel(User)
+
+  @hasMany(() => Item, {
+    foreignKey: 'idUser',
+    localKey: 'idUser',
+  })
+  declare items: HasMany<typeof Item>
+
+  @hasMany(() => Look, {
+    foreignKey: 'idUser',
+    localKey: 'idUser',
+  })
+  declare looks: HasMany<typeof Look>
 }

@@ -12,6 +12,11 @@ export default class extends BaseSchema {
       table.string('password').notNullable()
       table.string('username').notNullable().unique().index()
       table.date('birth_date').notNullable()
+      // in cm
+      table.integer('height').nullable()
+      // in kg
+      table.integer('weight').nullable()
+      table.string('avatar_path_url').nullable()
 
       table.timestamp('created_at').notNullable()
       table.timestamp('updated_at').nullable()
