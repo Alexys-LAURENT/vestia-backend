@@ -1,7 +1,7 @@
 import { BaseModel, belongsTo, column, manyToMany } from '@adonisjs/lucid/orm'
 import type { BelongsTo, ManyToMany } from '@adonisjs/lucid/types/relations'
 import { DateTime } from 'luxon'
-import { ITEM_TYPES } from '../../constants/item_types.js'
+import { ITEM_FORMALITIES, ITEM_SEASONS, ITEM_TYPES } from '../../constants/item_types.js'
 import User from './user.js'
 
 export default class Item extends BaseModel {
@@ -17,7 +17,9 @@ export default class Item extends BaseModel {
   @column()
   declare description: string
 
-  @column()
+  @column({
+    prepare: (value: string[]) => JSON.stringify(value),
+  })
   declare tags: string[]
 
   @column()
@@ -27,10 +29,21 @@ export default class Item extends BaseModel {
   declare type: (typeof ITEM_TYPES)[number]
 
   @column()
-  declare mainColor: string
+  declare season: (typeof ITEM_SEASONS)[number]
 
   @column()
-  declare additionnalColors: string[] | null
+  declare formality: (typeof ITEM_FORMALITIES)[number]
+
+  @column()
+  declare mainColor: string
+
+  @column({
+    prepare: (value: string[] | null) => {
+      console.log('Preparing additionalColors:', value)
+      return value ? JSON.stringify(value) : null
+    },
+  })
+  declare additionalColors: string[] | null
 
   @column()
   declare brand: string | null
