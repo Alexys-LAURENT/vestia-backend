@@ -10,6 +10,7 @@
 const AuthController = () => import('#controllers/auth_controller/controller')
 import router from '@adonisjs/core/services/router'
 import { middleware } from './kernel.js'
+const LooksController = () => import('#controllers/looks_controller/controller')
 const ItemsController = () => import('#controllers/items_controller/controller')
 
 router
@@ -24,5 +25,13 @@ router
 router
   .group(() => {
     router.post('/analyse', [ItemsController, 'analyseImage'])
+    router.post('', [ItemsController, 'insert'])
+    router.get('', [ItemsController, 'getAllForUser'])
   })
   .prefix('/items')
+
+router
+  .group(() => {
+    router.get('', [LooksController, 'getAllForUser'])
+  })
+  .prefix('/looks')

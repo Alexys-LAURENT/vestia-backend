@@ -1,5 +1,5 @@
 import { BaseSchema } from '@adonisjs/lucid/schema'
-import { ITEM_TYPES } from '../../constants/item_types.js'
+import { ITEM_FORMALITIES, ITEM_SEASONS, ITEM_TYPES } from '../../constants/item_types.js'
 
 export default class extends BaseSchema {
   protected itemsTable = 'items'
@@ -17,10 +17,12 @@ export default class extends BaseSchema {
         .inTable('users')
         .onDelete('CASCADE')
       table.string('name').notNullable()
-      table.string('description').notNullable()
+      table.text('description').notNullable()
       table.json('tags').notNullable()
       table.string('image_url').notNullable()
       table.enum('type', ITEM_TYPES).notNullable()
+      table.enum('season', ITEM_SEASONS).notNullable()
+      table.enum('formality', ITEM_FORMALITIES).notNullable()
       table.string('main_color').notNullable()
       table.json('additional_colors').nullable()
       table.string('brand').nullable()

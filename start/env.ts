@@ -34,5 +34,11 @@ export default await Env.create(new URL('../', import.meta.url), {
   | Variables for configuring the drive package
   |----------------------------------------------------------
   */
-  DRIVE_DISK: Env.schema.enum(['fs'] as const)
+  DRIVE_DISK: Env.schema.enum(['fs'] as const),
+  /*
+  |----------------------------------------------------------
+  | Variables for ai configuration
+  |----------------------------------------------------------
+  */
+  MODEL_NAME_FOR_ANALYSIS: Env.schema.string(),
 })
