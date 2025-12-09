@@ -1,4 +1,6 @@
-import { BaseModel, belongsTo, column, manyToMany } from '@adonisjs/lucid/orm'
+import logger from '@adonisjs/core/services/logger'
+import drive from '@adonisjs/drive/services/main'
+import { BaseModel, beforeDelete, belongsTo, column, manyToMany } from '@adonisjs/lucid/orm'
 import type { BelongsTo, ManyToMany } from '@adonisjs/lucid/types/relations'
 import { DateTime } from 'luxon'
 import { ITEM_FORMALITIES, ITEM_SEASONS, ITEM_TYPES } from '../../constants/item_types.js'
@@ -72,4 +74,13 @@ export default class Item extends BaseModel {
     pivotTimestamps: true,
   })
   declare users_notifications: ManyToMany<typeof User>
+
+  @beforeDelete()
+  static async deleteImageUrl(item: Item) {
+    const disk = drive.use()
+    if (await disk.exists(item.imageUrl)) {
+      await disk.delete(item.imageUrl)
+      logger.info(`Image for item ${item.idItem} deleted from storage.`)
+    }
+  }
 }

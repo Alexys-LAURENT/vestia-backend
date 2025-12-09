@@ -38,7 +38,7 @@ export const analyseImageSchema = z.object({
         .min(3)
         .max(8)
         .describe(
-          'Tags décrivant le style et les occasions de port. Exemples : ["décontracté", "streetwear", "élégant", "vintage", "minimaliste", "bohème", "sportif", "formel"]'
+          'Tags en français décrivant le style et les occasions de port. Exemples : ["décontracté", "streetwear", "élégant", "vintage", "minimaliste", "bohème", "sportif", "formel"]'
         ),
       type: z
         .enum(ITEM_TYPES)

@@ -47,7 +47,7 @@ Analyser des images pour identifier et décrire des vêtements ou accessoires de
 - Sois précis et descriptif dans tes analyses
 - Utilise un vocabulaire mode approprié
 - Pour les couleurs, utilise des noms précis ("bleu marine" plutôt que "bleu")
-- Les tags doivent refléter le style, l'occasion de port et l'esthétique générale`,
+- Les tags doivent refléter le style, l'occasion de port et l'esthétique générale et être en français`,
       messages: [
         {
           role: 'user',
