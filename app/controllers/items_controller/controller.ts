@@ -1,3 +1,4 @@
+import UnAuthorizedException from '#exceptions/un_authorized_exception'
 import MediaService from '#services/media_service'
 import env from '#start/env'
 import { inject } from '@adonisjs/core'
@@ -11,6 +12,8 @@ import {
   analyseImageValidator,
   getAllItemsValidator,
   insertItemValdator,
+  onlyIdItemValidator,
+  updateItemValdator,
 } from './validators.js'
 
 @inject()
@@ -107,6 +110,59 @@ Analyser des images pour identifier et décrire des vêtements ou accessoires de
     return this.buildJSONResponse({
       message: 'Vêtements récupérés avec succès',
       data: items,
+    })
+  }
+
+  @inject()
+  async getOne({ auth, params }: HttpContext, itemsRepository: ItemsRepository) {
+    const user = await auth.authenticate()
+    const { idItem } = await onlyIdItemValidator.validate(params)
+    const item = await itemsRepository.getItemByIdOrFail(idItem)
+
+    if (item.idUser !== user.idUser) {
+      throw new UnAuthorizedException()
+    }
+
+    return this.buildJSONResponse({
+      message: 'Vêtement récupéré avec succès',
+      data: item,
+    })
+  }
+
+  @inject()
+  async delete({ auth, params }: HttpContext, itemsRepository: ItemsRepository) {
+    const user = await auth.authenticate()
+    const { idItem } = await onlyIdItemValidator.validate(params)
+    const item = await itemsRepository.getItemByIdOrFail(idItem)
+
+    if (item.idUser !== user.idUser) {
+      throw new UnAuthorizedException()
+    }
+    await itemsRepository.deleteItemById(idItem)
+
+    return this.buildJSONResponse({
+      message: 'Vêtement supprimé avec succès',
+    })
+  }
+
+  @inject()
+  async update({ params, request, auth }: HttpContext, itemsRepository: ItemsRepository) {
+    const user = await auth.authenticate()
+    const { idItem } = await onlyIdItemValidator.validate(params)
+
+    const item = await itemsRepository.getItemByIdOrFail(idItem)
+    if (item.idUser !== user.idUser) {
+      throw new UnAuthorizedException()
+    }
+
+    const valid = await request.validateUsing(updateItemValdator)
+
+    await itemsRepository.updateItem(item, valid)
+
+    // To be implemented: update item logic
+    return this.buildJSONResponse({
+      message: 'Vêtement mis à jour avec succès',
+      data: item,
     })
   }
 }

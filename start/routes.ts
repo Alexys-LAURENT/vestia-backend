@@ -27,6 +27,9 @@ router
     router.post('/analyse', [ItemsController, 'analyseImage'])
     router.post('', [ItemsController, 'insert'])
     router.get('', [ItemsController, 'getAllForUser'])
+    router.get('/:idItem', [ItemsController, 'getOne'])
+    router.delete('/:idItem', [ItemsController, 'delete'])
+    router.put('/:idItem', [ItemsController, 'update'])
   })
   .prefix('/items')
 

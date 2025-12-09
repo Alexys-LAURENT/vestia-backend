@@ -1,3 +1,4 @@
+import env from '#start/env'
 import logger from '@adonisjs/core/services/logger'
 import drive from '@adonisjs/drive/services/main'
 import { BaseModel, beforeDelete, belongsTo, column, manyToMany } from '@adonisjs/lucid/orm'
@@ -5,7 +6,6 @@ import type { BelongsTo, ManyToMany } from '@adonisjs/lucid/types/relations'
 import { DateTime } from 'luxon'
 import { ITEM_FORMALITIES, ITEM_SEASONS, ITEM_TYPES } from '../../constants/item_types.js'
 import User from './user.js'
-
 export default class Item extends BaseModel {
   @column({ isPrimary: true })
   declare idItem: number
@@ -41,7 +41,6 @@ export default class Item extends BaseModel {
 
   @column({
     prepare: (value: string[] | null) => {
-      console.log('Preparing additionalColors:', value)
       return value ? JSON.stringify(value) : null
     },
   })
@@ -78,8 +77,10 @@ export default class Item extends BaseModel {
   @beforeDelete()
   static async deleteImageUrl(item: Item) {
     const disk = drive.use()
-    if (await disk.exists(item.imageUrl)) {
-      await disk.delete(item.imageUrl)
+    const key = item.imageUrl.replace(env.get('DRIVE_ROUTE_BASE_PATH'), '')
+
+    if (await disk.exists(key)) {
+      await disk.delete(key)
       logger.info(`Image for item ${item.idItem} deleted from storage.`)
     }
   }

@@ -92,11 +92,46 @@ export const insertItemValdator = vine.compile(
   })
 )
 
+export const updateItemValdator = vine.compile(
+  vine.object({
+    name: vine.string(),
+    description: vine.string(),
+    tags: vine.union([
+      vine.union.if((value) => vine.helpers.isArray<string>(value), vine.array(vine.string())),
+      vine.union.else(vine.string().transform((value) => (value ? [value] : []))),
+    ]),
+    type: vine.enum(ITEM_TYPES),
+    season: vine.enum(ITEM_SEASONS),
+    formality: vine.enum(ITEM_FORMALITIES),
+    mainColor: vine.string(),
+    additionalColors: vine.union([
+      vine.union.if(
+        (value) => vine.helpers.isArray<string>(value),
+        vine.array(vine.string()).nullable()
+      ),
+      vine.union.else(
+        vine
+          .string()
+          .nullable()
+          .transform((value) => (value ? [value] : []))
+      ),
+    ]),
+    brand: vine.string().nullable(),
+    reference: vine.string().nullable(),
+  })
+)
+
 export const getAllItemsValidator = vine.compile(
   vine.object({
     page: vine.number().optional(),
     limit: vine.number().optional(),
     type: vine.enum(ITEM_TYPES).optional(),
     search: vine.string().optional(),
+  })
+)
+
+export const onlyIdItemValidator = vine.compile(
+  vine.object({
+    idItem: vine.number(),
   })
 )

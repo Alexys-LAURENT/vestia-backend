@@ -56,4 +56,31 @@ export default class ItemsRepository {
     })
     return newItem
   }
+
+  async updateItem(item: Item, itemData: Partial<Item>) {
+    item.name = itemData.name ?? item.name
+    item.description = itemData.description ?? item.description
+    item.tags = itemData.tags ?? item.tags
+    item.type = itemData.type ?? item.type
+    item.season = itemData.season ?? item.season
+    item.formality = itemData.formality ?? item.formality
+    item.mainColor = itemData.mainColor ?? item.mainColor
+    item.additionalColors = itemData.additionalColors ?? item.additionalColors
+    item.brand = itemData.brand ?? item.brand
+    item.reference = itemData.reference ?? item.reference
+
+    await item.save()
+
+    return item
+  }
+
+  async getItemByIdOrFail(idItem: number) {
+    const item = await Item.query().where('idItem', idItem).firstOrFail()
+    return item
+  }
+
+  async deleteItemById(idItem: number) {
+    const item = await this.getItemByIdOrFail(idItem)
+    await item.delete()
+  }
 }
