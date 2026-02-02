@@ -1,7 +1,9 @@
-import { BaseModel, belongsTo, column, manyToMany } from '@adonisjs/lucid/orm'
-import type { BelongsTo, ManyToMany } from '@adonisjs/lucid/types/relations'
+import { DateTime } from 'luxon'
+import { BaseModel, belongsTo, column, hasMany, manyToMany } from '@adonisjs/lucid/orm'
+import type { BelongsTo, HasMany, ManyToMany } from '@adonisjs/lucid/types/relations'
 import Item from './item.js'
 import User from './user.js'
+import PlannedOutfit from './planned_outfit.js'
 
 export default class Look extends BaseModel {
   @column({ isPrimary: true })
@@ -19,6 +21,12 @@ export default class Look extends BaseModel {
   @column()
   declare isAiGenerated: boolean
 
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+
   @belongsTo(() => User, {
     localKey: 'idUser',
     foreignKey: 'idUser',
@@ -34,4 +42,10 @@ export default class Look extends BaseModel {
     pivotTimestamps: true,
   })
   declare items: ManyToMany<typeof Item>
+
+  @hasMany(() => PlannedOutfit, {
+    localKey: 'idLook',
+    foreignKey: 'idLook',
+  })
+  declare plannedOutfits: HasMany<typeof PlannedOutfit>
 }

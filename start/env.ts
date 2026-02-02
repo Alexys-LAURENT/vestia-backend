@@ -43,4 +43,5 @@ export default await Env.create(new URL('../', import.meta.url), {
   |----------------------------------------------------------
   */
   MODEL_NAME_FOR_ANALYSIS: Env.schema.string(),
+  GOOGLE_GENERATIVE_AI_API_KEY: Env.schema.string(),
 })
