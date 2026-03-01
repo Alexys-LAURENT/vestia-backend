@@ -1,13 +1,10 @@
 import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
-import OutfitGeneratorService from '#services/outfit_generator_service'
-import OutfitPromptBuilder from '#services/outfit_prompt_builder'
-import OutfitValidationService from '#services/outfit_validation_service'
 import ItemsRepository from '../../repositories/items_repository.js'
 import LooksRepository from '../../repositories/looks_repository.js'
 import AbstractController from '../abstract_controller.js'
 import UnAuthorizedException from '#exceptions/un_authorized_exception'
-import { createLookValidator, generateLookValidator, getAllLooksValidator, onlyIdLookValidator } from './validators.js'
+import { createLookValidator, getAllLooksValidator, onlyIdLookValidator } from './validators.js'
 
 export default class LooksController extends AbstractController {
   constructor() {

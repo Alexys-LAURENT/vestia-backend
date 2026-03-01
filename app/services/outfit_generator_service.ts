@@ -23,6 +23,7 @@ export interface GenerationOptions {
   notLikedItemIds?: number[]
   maxAttempts?: number
   temperature?: number
+  context?: string
 }
 
 export default class OutfitGeneratorService {
@@ -40,6 +41,7 @@ export default class OutfitGeneratorService {
       notLikedItemIds = [],
       maxAttempts = 3,
       temperature = 0.7,
+      context,
     } = options
 
     // Prepare data
@@ -57,7 +59,8 @@ export default class OutfitGeneratorService {
       notLikedItems,
       forcedItemIds,
       maxAttempts,
-      temperature
+      temperature,
+      context
     )
 
     if (aiOutfit) {
@@ -122,13 +125,15 @@ export default class OutfitGeneratorService {
     notLikedItems: Item[],
     forcedItemIds: number[],
     maxAttempts: number,
-    temperature: number
+    temperature: number,
+    context?: string
   ): Promise<Omit<GeneratedOutfit, 'generationMethod'> | null> {
     const { systemPrompt, userPrompt } = this.promptBuilder.buildPrompt(
       itemsByType,
       forcedItems,
       notLikedItems,
-      forcedItemIds
+      forcedItemIds,
+      context
     )
 
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
@@ -160,7 +165,9 @@ export default class OutfitGeneratorService {
           `Tentative ${attempt}/${maxAttempts}: Validation échouée - ${validation.errors.join(', ')}`
         )
       } catch (error) {
-        logger.error(`Tentative ${attempt}/${maxAttempts}: Erreur AI - ${error.message}`)
+        logger.error(
+          `Tentative ${attempt}/${maxAttempts}: Erreur AI - ${error instanceof Error ? error.message : String(error)}`
+        )
       }
     }
 

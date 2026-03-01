@@ -102,12 +102,17 @@ Structure: {"items": [{"idItem": number, "reason": "string"}], "generalReasoning
   /**
    * Builds the user prompt based on constraints
    */
-  buildUserPrompt(forcedItemIds?: number[]): string {
-    if (forcedItemIds && forcedItemIds.length > 0) {
-      return `Crée une tenue complète en incluant OBLIGATOIREMENT les vêtements imposés (IDs: ${forcedItemIds.join(', ')}). Construis le reste de la tenue pour qu'elle soit cohérente avec ces pièces.`
+  buildUserPrompt(forcedItemIds?: number[], context?: string): string {
+    let base = ''
+    if (context) {
+      base = `Contexte demandé par l'utilisateur : "${context}". `
     }
 
-    return `Génère une tenue complète et cohérente avec un seul vêtement par catégorie.`
+    if (forcedItemIds && forcedItemIds.length > 0) {
+      return `${base}Crée une tenue complète en incluant OBLIGATOIREMENT les vêtements imposés (IDs: ${forcedItemIds.join(', ')}). Construis le reste de la tenue pour qu'elle soit cohérente avec ces pièces.`
+    }
+
+    return `${base}Génère une tenue complète et cohérente avec un seul vêtement par catégorie.`
   }
 
   /**
@@ -117,11 +122,12 @@ Structure: {"items": [{"idItem": number, "reason": "string"}], "generalReasoning
     itemsByType: Record<string, Item[]>,
     forcedItems: Item[],
     notLikedItems: Item[],
-    forcedItemIds?: number[]
+    forcedItemIds?: number[],
+    context?: string
   ): PromptData {
     return {
       systemPrompt: this.buildSystemPrompt(itemsByType, forcedItems, notLikedItems),
-      userPrompt: this.buildUserPrompt(forcedItemIds),
+      userPrompt: this.buildUserPrompt(forcedItemIds, context),
     }
   }
 }

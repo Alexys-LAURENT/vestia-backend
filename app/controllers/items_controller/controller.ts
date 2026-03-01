@@ -1,7 +1,9 @@
 import UnAuthorizedException from '#exceptions/un_authorized_exception'
+import EmbeddingService from '#services/embedding_service'
 import MediaService from '#services/media_service'
 import env from '#start/env'
 import { inject } from '@adonisjs/core'
+import logger from '@adonisjs/core/services/logger'
 import type { HttpContext } from '@adonisjs/core/http'
 import { generateObject } from 'ai'
 import { ollama } from 'ollama-ai-provider-v2'
@@ -83,10 +85,23 @@ Analyser des images pour identifier et décrire des vêtements ou accessoires de
   }
 
   @inject()
-  async insert({ request, auth }: HttpContext, itemsRepository: ItemsRepository) {
+  async insert(
+    { request, auth }: HttpContext,
+    itemsRepository: ItemsRepository,
+    embeddingService: EmbeddingService
+  ) {
     const user = await auth.authenticate()
     const valid = await request.validateUsing(insertItemValdator)
     const newItem = await itemsRepository.insertNewItem(valid, user.idUser)
+
+    embeddingService
+      .generateItemEmbedding(newItem)
+      .then((embedding) => itemsRepository.updateEmbedding(newItem.idItem, embedding))
+      .catch((err) =>
+        logger.error(
+          `Échec de la génération d'embedding pour l'item ${newItem.idItem}: ${err.message}`
+        )
+      )
 
     return this.buildJSONResponse({
       message: 'Vêtement ajouté avec succès',
@@ -146,7 +161,11 @@ Analyser des images pour identifier et décrire des vêtements ou accessoires de
   }
 
   @inject()
-  async update({ params, request, auth }: HttpContext, itemsRepository: ItemsRepository) {
+  async update(
+    { params, request, auth }: HttpContext,
+    itemsRepository: ItemsRepository,
+    embeddingService: EmbeddingService
+  ) {
     const user = await auth.authenticate()
     const { idItem } = await onlyIdItemValidator.validate(params)
 
@@ -159,7 +178,13 @@ Analyser des images pour identifier et décrire des vêtements ou accessoires de
 
     await itemsRepository.updateItem(item, valid)
 
-    // To be implemented: update item logic
+    embeddingService
+      .generateItemEmbedding(item)
+      .then((embedding) => itemsRepository.updateEmbedding(item.idItem, embedding))
+      .catch((err) =>
+        logger.error(`Embedding update failed for item ${item.idItem}: ${err.message}`)
+      )
+
     return this.buildJSONResponse({
       message: 'Vêtement mis à jour avec succès',
       data: item,

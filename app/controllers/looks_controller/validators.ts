@@ -30,29 +30,6 @@ export const createLookValidator = vine.compile(
   })
 )
 
-export const generateLookValidator = vine.compile(
-  vine.object({
-    forcedItemIds: vine
-      .array(
-        vine.number().exists(async (db, value) => {
-          const row = await db.from('items').where('id_item', value).first()
-          return row ? true : false
-        })
-      )
-      .optional(),
-    shouldIncludeWeather: vine.boolean().optional(),
-    wheatherDate: vine.date().optional(),
-    notLikedLookItemsIds: vine
-      .array(
-        vine.number().exists(async (db, value) => {
-          const row = await db.from('items').where('id_item', value).first()
-          return row ? true : false
-        })
-      )
-      .optional()
-      .nullable(),
-  })
-)
 
 export const lookGenerationSchema = z.object({
   items: z
