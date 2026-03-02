@@ -61,6 +61,7 @@ router
 
 router
   .group(() => {
+    router.post('/chat', [ChatbotController, 'chat'])
     router.get('/wardrobe-stats', [ChatbotController, 'wardrobeStats'])
     router.get('/search-items', [ChatbotController, 'searchItems'])
     router.post('/semantic-search', [ChatbotController, 'semanticSearch'])
