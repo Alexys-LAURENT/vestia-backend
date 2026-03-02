@@ -1,12 +1,11 @@
 import UnAuthorizedException from '#exceptions/un_authorized_exception'
 import EmbeddingService from '#services/embedding_service'
 import MediaService from '#services/media_service'
-import env from '#start/env'
 import { inject } from '@adonisjs/core'
-import logger from '@adonisjs/core/services/logger'
 import type { HttpContext } from '@adonisjs/core/http'
+import logger from '@adonisjs/core/services/logger'
+import { google } from '@ai-sdk/google'
 import { generateObject } from 'ai'
-import { ollama } from 'ollama-ai-provider-v2'
 import ItemsRepository from '../../repositories/items_repository.js'
 import AbstractController from '../abstract_controller.js'
 import {
@@ -30,7 +29,7 @@ export default class ItemsController extends AbstractController {
     const base64Image = await mediaService.getBase64FromImage(valid.itemImage)
 
     const result = await generateObject({
-      model: ollama(env.get('MODEL_NAME_FOR_ANALYSIS')),
+      model: google('gemini-2.5-flash'),
       schema: analyseImageSchema,
       providerOptions: { ollama: { think: false } },
       system: `Tu es un expert en mode et stylisme avec une connaissance approfondie des vêtements, des tendances et des styles vestimentaires.
