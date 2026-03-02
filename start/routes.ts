@@ -69,3 +69,7 @@ router
   })
   .prefix('/chatbot')
   .use(middleware.auth())
+
+router.get('/ping', async () => {
+  return 'pong'
+})
