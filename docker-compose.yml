@@ -28,11 +28,11 @@ services:
     restart: unless-stopped
 
   postgres:
-    image: postgres:16-alpine
+    image: pgvector/pgvector:pg17
     environment:
       POSTGRES_USER: ${DB_USER:-vestia}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-vestia}
-      POSTGRES_DB: ${DB_DATABASE:-vestia}
+      POSTGRES_DB: vestia
     volumes:
       - pg_data:/var/lib/postgresql/data
     ports:
