@@ -30,7 +30,6 @@ export const createLookValidator = vine.compile(
   })
 )
 
-
 export const lookGenerationSchema = z.object({
   items: z
     .array(

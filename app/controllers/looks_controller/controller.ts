@@ -1,9 +1,9 @@
+import UnAuthorizedException from '#exceptions/un_authorized_exception'
 import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
 import ItemsRepository from '../../repositories/items_repository.js'
 import LooksRepository from '../../repositories/looks_repository.js'
 import AbstractController from '../abstract_controller.js'
-import UnAuthorizedException from '#exceptions/un_authorized_exception'
 import { createLookValidator, getAllLooksValidator, onlyIdLookValidator } from './validators.js'
 
 export default class LooksController extends AbstractController {
@@ -41,55 +41,16 @@ export default class LooksController extends AbstractController {
       }
     }
 
-    const look = await looksRepository.createLook(user.idUser, itemIds, event, isAiGenerated ?? true)
+    const look = await looksRepository.createLook(
+      user.idUser,
+      itemIds,
+      event,
+      isAiGenerated ?? true
+    )
 
     return this.buildJSONResponse({
       message: 'Tenue sauvegardée avec succès',
       data: look,
-    })
-  }
-
-  @inject()
-  async generateLook({ auth, request }: HttpContext) {
-    const user = await auth.authenticate()
-    const { forcedItemIds, notLikedLookItemsIds } =
-      await request.validateUsing(generateLookValidator)
-
-    // Fetch user's wardrobe
-    const allItems = await user.related('items').query()
-
-    if (allItems.length === 0) {
-      throw new Error("L'utilisateur n'a aucun vêtement dans sa garde-robe.")
-    }
-
-    // Generate outfit using the service
-    const validationService = new OutfitValidationService()
-    const promptBuilder = new OutfitPromptBuilder()
-    const generatorService = new OutfitGeneratorService(validationService, promptBuilder)
-
-    const outfit = await generatorService.generate(allItems, {
-      forcedItemIds: forcedItemIds || [],
-      notLikedItemIds: notLikedLookItemsIds || [],
-    })
-
-    // Format response
-    const itemsWithDetails = outfit.items.map((item) => {
-      const fullItem = outfit.selectedItems.find((i) => i.idItem === item.idItem)
-      return {
-        ...fullItem?.toJSON(),
-        reason: item.reason,
-        isForced: forcedItemIds?.includes(item.idItem) || false,
-      }
-    })
-
-    return this.buildJSONResponse({
-      message: 'Tenue générée avec succès',
-      data: {
-        items: itemsWithDetails,
-        generalReasoning: outfit.generalReasoning,
-        generationMethod: outfit.generationMethod,
-        forcedItemsCount: forcedItemIds?.length || 0,
-      },
     })
   }
 
