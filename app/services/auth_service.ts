@@ -55,6 +55,37 @@ export default class AuthService {
     await User.accessTokens.delete(user, token.identifier)
   }
 
+  async updateUserProfile(
+    user: User,
+    data: {
+      firstName?: string
+      lastName?: string
+      username?: string
+      birthDate?: Date
+      email?: string
+    }
+  ) {
+    if (data.username && data.username !== user.username) {
+      await this.checkUsernameAvailabilityOrFail(data.username)
+    }
+    if (data.email && data.email !== user.email) {
+      await this.checkEmailAvailabilityOrFail(data.email)
+    }
+    const updateData: Parameters<typeof this.usersRepository.updateUser>[1] = {
+      firstName: data.firstName,
+      lastName: data.lastName,
+      username: data.username,
+      email: data.email,
+      birthDate: data.birthDate ? DateTime.fromJSDate(data.birthDate) : undefined,
+    }
+    return this.usersRepository.updateUser(user, updateData)
+  }
+
+  async changeUserPassword(user: User, currentPassword: string, newPassword: string) {
+    await this.checkUserPassword(user, currentPassword)
+    return this.usersRepository.updateUser(user, { password: newPassword })
+  }
+
   async registerUser(userData: {
     email: string
     username: string

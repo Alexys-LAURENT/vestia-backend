@@ -3,7 +3,12 @@ import AuthService from '#services/auth_service'
 import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
 import AbstractController from '../abstract_controller.js'
-import { loginUserValidator, registerUserValidator } from './validators.js'
+import {
+  changePasswordValidator,
+  loginUserValidator,
+  registerUserValidator,
+  updateProfileValidator,
+} from './validators.js'
 
 @inject()
 export default class AuthController extends AbstractController {
@@ -25,6 +30,7 @@ export default class AuthController extends AbstractController {
         idUser: user.idUser,
         firstName: user.firstName,
         lastName: user.lastName,
+        username: user.username,
         email: user.$attributes.email,
         birthDate: user.birthDate,
         accessToken: {
@@ -52,6 +58,34 @@ export default class AuthController extends AbstractController {
     await this.authService.registerUser(valid)
 
     return this.buildJSONResponse({ message: 'User registered successfully' })
+  }
+
+  public async updateProfile({ auth, request }: HttpContext) {
+    const user = await auth.authenticate()
+    const data = await request.validateUsing(updateProfileValidator)
+
+    const updatedUser = await this.authService.updateUserProfile(user, data)
+
+    return this.buildJSONResponse({
+      message: 'Profil mis à jour avec succès',
+      data: {
+        idUser: updatedUser.idUser,
+        firstName: updatedUser.firstName,
+        lastName: updatedUser.lastName,
+        username: updatedUser.username,
+        email: updatedUser.email,
+        birthDate: updatedUser.birthDate,
+      },
+    })
+  }
+
+  public async changePassword({ auth, request }: HttpContext) {
+    const user = await auth.authenticate()
+    const { currentPassword, newPassword } = await request.validateUsing(changePasswordValidator)
+
+    await this.authService.changeUserPassword(user, currentPassword, newPassword)
+
+    return this.buildJSONResponse({ message: 'Mot de passe modifié avec succès' })
   }
 
   public async checkUsername({ request }: HttpContext) {

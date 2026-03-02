@@ -21,6 +21,8 @@ router
     router.post('/register', [AuthController, 'register'])
     router.post('/logout', [AuthController, 'logout']).use(middleware.auth())
     router.post('/check-username', [AuthController, 'checkUsername'])
+    router.put('/profile', [AuthController, 'updateProfile']).use(middleware.auth())
+    router.put('/password', [AuthController, 'changePassword']).use(middleware.auth())
   })
   .prefix('/auth')
 

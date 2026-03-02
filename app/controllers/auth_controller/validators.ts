@@ -18,3 +18,20 @@ export const loginUserValidator = vine.compile(
     password: vine.string().minLength(6).trim().escape().regex(PASSWORD_REGEX),
   })
 )
+
+export const updateProfileValidator = vine.compile(
+  vine.object({
+    firstName: vine.string().trim().escape().optional(),
+    lastName: vine.string().trim().escape().optional(),
+    username: vine.string().minLength(3).trim().escape().optional(),
+    birthDate: vine.date().optional(),
+    email: vine.string().email().escape().optional(),
+  })
+)
+
+export const changePasswordValidator = vine.compile(
+  vine.object({
+    currentPassword: vine.string().minLength(6).trim().escape().regex(PASSWORD_REGEX),
+    newPassword: vine.string().minLength(6).trim().escape().regex(PASSWORD_REGEX),
+  })
+)
