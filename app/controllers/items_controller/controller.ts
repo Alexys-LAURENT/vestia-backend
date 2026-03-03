@@ -5,11 +5,11 @@ import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
 import logger from '@adonisjs/core/services/logger'
 import { google } from '@ai-sdk/google'
-import { generateObject } from 'ai'
+import { generateText, Output, UserContent } from 'ai'
 import ItemsRepository from '../../repositories/items_repository.js'
 import AbstractController from '../abstract_controller.js'
 import {
-  analyseImageSchema,
+  analyseImagesSchema,
   analyseImageValidator,
   getAllItemsValidator,
   insertItemValdator,
@@ -26,11 +26,26 @@ export default class ItemsController extends AbstractController {
   @inject()
   async analyseImage({ request }: HttpContext, mediaService: MediaService) {
     const valid = await request.validateUsing(analyseImageValidator)
-    const base64Image = await mediaService.getBase64FromImage(valid.itemImage)
 
-    const result = await generateObject({
+    if (valid.images.length === 0) {
+      throw new Error("Aucune image fournie pour l'analyse")
+    }
+
+    const base64Images = await Promise.all(
+      valid.images.map((image) => mediaService.getBase64FromImage(image))
+    )
+
+    const imagesMessages: UserContent = base64Images.map((base64) => ({
+      type: 'image',
+      image: base64,
+    }))
+
+    const result = await generateText({
       model: google('gemini-2.5-flash'),
-      schema: analyseImageSchema,
+      output: Output.object({
+        schema: analyseImagesSchema,
+        name: 'analyse_image_response',
+      }),
       providerOptions: { ollama: { think: false } },
       system: `Tu es un expert en mode et stylisme avec une connaissance approfondie des vêtements, des tendances et des styles vestimentaires.
 
@@ -60,26 +75,26 @@ Analyser des images pour identifier et décrire des vêtements ou accessoires de
               type: 'text',
               text: `Analyse cette image. Détermine d'abord s'il s'agit bien d'un vêtement ou accessoire de mode unique et clairement visible. Si oui, fournis une analyse détaillée. Sinon, indique la raison de l'échec.`,
             },
-            {
-              type: 'image',
-              image: base64Image,
-            },
+            ...imagesMessages,
           ],
         },
       ],
     })
 
-    if (!result.object.is_clothing) {
+    const allItemWhereIsClothingTrue = result.output.results.filter((item) => item.is_clothing)
+
+    if (allItemWhereIsClothingTrue.length === 0) {
       return {
         success: false,
         message: "L'analyse de l'image a échoué",
-        reason: result.object.failure_reason,
+        reason:
+          'Aucune des images soumises ne contient un vêtement ou accessoire de mode unique et clairement visible.',
       }
     }
 
     return this.buildJSONResponse({
       message: 'Image analysée avec succès',
-      data: result.object.data,
+      data: allItemWhereIsClothingTrue.map((item) => item.data),
     })
   }
 

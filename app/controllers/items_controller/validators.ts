@@ -1,3 +1,4 @@
+import { VineMultipartFile } from '@adonisjs/core/vine'
 import vine from '@vinejs/vine'
 import z from 'zod'
 import { ALLOWED_IMAGES_TYPES } from '../../../constants/file_ext.js'
@@ -5,11 +6,19 @@ import { ITEM_FORMALITIES, ITEM_SEASONS, ITEM_TYPES } from '../../../constants/i
 
 export const analyseImageValidator = vine.compile(
   vine.object({
-    itemImage: vine.file({ extnames: ALLOWED_IMAGES_TYPES }),
+    images: vine.union([
+      vine.union.if(
+        (value) => vine.helpers.isArray<VineMultipartFile>(value),
+        vine.array(vine.file({ extnames: ALLOWED_IMAGES_TYPES })).maxLength(10)
+      ),
+      vine.union.else(
+        vine.file({ extnames: ALLOWED_IMAGES_TYPES }).transform((value) => (value ? [value] : []))
+      ),
+    ]),
   })
 )
 
-export const analyseImageSchema = z.object({
+export const analyseImageItemSchema = z.object({
   is_clothing: z
     .boolean()
     .describe(
@@ -60,6 +69,14 @@ export const analyseImageSchema = z.object({
     })
     .nullable()
     .describe('Données du vêtement. Null si is_clothing est false.'),
+})
+
+export const analyseImagesSchema = z.object({
+  results: z
+    .array(analyseImageItemSchema)
+    .describe(
+      "Résultats de l'analyse pour chaque image soumise, dans le même ordre que les images."
+    ),
 })
 
 export const insertItemValdator = vine.compile(
